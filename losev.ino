@@ -20,11 +20,11 @@ const int led_b =  4;    // Blue on pin 4, which is also used for programming th
     // Flicker here is pink noise, 1/(f^a). The 'a' exponent is set 
     // to 0.38, by trial and error, it controls how 'flickery' the flicker is. 
     // Try experineting with these values to your liking!
-const BASE_BRIGHTNESS = 130;
-const SLOW_UNDULATION_AMPLITUDE = 40;
-const FAST_UNDULATION_AMPLITUDE = 10;
-const FLICKER_AMPLITUDE = 75;
-const FLICKER_EXPONENT = 0.38
+const int BASE_BRIGHTNESS = 130;
+const int SLOW_UNDULATION_AMPLITUDE = 40;
+const int FAST_UNDULATION_AMPLITUDE = 10;
+const int FLICKER_AMPLITUDE = 75;
+const int FLICKER_EXPONENT = 0.38;
 
 
 // variables
@@ -37,13 +37,9 @@ long now = 0;
 int crackle_refresh = 82;       // This gives an update rate of about 13 Hz, but we can fuzz this number later
 long next_crackle = 0;
 
-int eeprom = EEPROM.read(0)     // This section re-sets the color to what it was last time the device was unplugged
-if (eeprom >= 0 and eeprom <= 11) {
-  int current_color = eeprom;
-}
-else {
-  int current_color = 0;
-}
+int eeprom = EEPROM.read(0);     // This section re-sets the color to what it was last time the device was unplugged
+
+int current_color = 0;
 
 struct Color {
   unsigned short int red;
@@ -82,7 +78,10 @@ struct Color *colors[] = {&orange,
 
 void setup() {   
   // initialize the pushbutton pin as an input with a pullup  
-  pinMode(buttonPin, INPUT_PULLUP);     
+  pinMode(buttonPin, INPUT_PULLUP);
+  if (eeprom >= 0 and eeprom <= 11) {
+    int current_color = eeprom;
+  }  
 }
 
 void loop(){
@@ -91,7 +90,7 @@ void loop(){
   buttonState = digitalRead(buttonPin);
   now = millis();
   
-  if (buttonState != lastButtonState and buttonState == LOW and (now - lastButtontPress > button Delay)) {     
+  if (buttonState != lastButtonState and buttonState == LOW and (now - lastButtonPress > buttonDelay)) {     
     lastButtonPress = now;
     current_color++;
     if (current_color > 11) {
@@ -107,7 +106,7 @@ void loop(){
     
     // Brightness is a coeficient between 0 and 1, by which we multiply the RGB values for the current color,
     // to apply undulation and flicker.
-    float brightness = (BASE_BRIGHTNESS + UNDULATION_AMPLITUDE * undulation + FAST_UNDULATION_AMPLITUDE * undulation2 
+    float brightness = (BASE_BRIGHTNESS + SLOW_UNDULATION_AMPLITUDE * undulation + FAST_UNDULATION_AMPLITUDE * undulation2 
                         + FLICKER_AMPLITUDE / (pow(random(1,256), FLICKER_EXPONENT))) / 256;
     analogWrite(led_r, ceil(colors[current_color]->red * brightness));
     analogWrite(led_g, ceil(colors[current_color]->green * brightness));
