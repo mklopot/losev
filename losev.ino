@@ -24,7 +24,7 @@ const int BASE_BRIGHTNESS = 130;
 const int SLOW_UNDULATION_AMPLITUDE = 40;
 const int FAST_UNDULATION_AMPLITUDE = 10;
 const int FLICKER_AMPLITUDE = 75;
-const int FLICKER_EXPONENT = 0.38;
+const float FLICKER_EXPONENT = 0.38;
 
 
 // variables
