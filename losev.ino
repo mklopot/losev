@@ -33,11 +33,35 @@ int lastButtonState = HIGH;
 long lastButtonPress = 0;       // keep track of last press for de-bouncing 
 int buttonDelay = 250;          // milliseconds
 
+int current_color;
+
 long now = 0;
+float brightness;
+float undulation;
+float undulation2;
 int crackle_refresh = 82;       // This gives an update rate of about 13 Hz, but we can fuzz this number later
 long next_crackle = 0;
 
-int current_color;
+long nextPink = 0;
+int pinkRefresh = 82;
+int pinkAmplitude = 60;
+int pinkCounter = 0;
+int oldRando;
+int newRando;
+int pinkIndex;
+// This is called the Voss-McCartney Pink Noise Algorithm
+int pinkRandos[] = {0, 0, 0, 0, 0};
+int pinkSequence[] = {0, 1, 0, 2,
+                      0, 1, 0, 3,
+                      0, 1, 0, 2,
+                      0, 1, 0, 4,
+                      0, 1, 0, 2,
+                      0, 1, 0, 3,
+                      0, 1, 0, 2,
+                      0, 1, 0}
+
+
+
 
 struct Color {
   unsigned short int red;
@@ -45,7 +69,7 @@ struct Color {
   unsigned short int blue;
 };
 
-// color wheel: primary, seconday and tretiary colors
+// color wheel: primary, seconday and tretiary colors. Plus white and black.
 const struct Color red = {255, 0, 0};
 const struct Color orange = {255, 25, 0};
 const struct Color yellow = {255, 50, 0};
@@ -99,21 +123,33 @@ void loop() {
     }
     EEPROM.write(0, current_color);    // Save the new color to EEPROM
   }
-
+  
+  if (now > nextPink) {
+    nextPink += pinkRefresh;
+    pinkCounter++;
+    if (pinkCounter > 30) pinkCounter = 0;
+    pinkIndex = pinkSequence[pinkCounter]
+    oldRando = pinkRandos[pinkIndex];
+    newRando = random(0, pinkAmplitude);
+    pinkRandos[pinkIndex] = newRando;
+    pinkValue += (newRando - oldRando);
+  }
+  
   if (now > next_crackle) {
     next_crackle += crackle_refresh;
-    next_crackle -= random(0,10);
-     //  // The refresh rate can vary by 30 msec
-    float undulation = sin(now / 5000.0);  // Slow change in brightness over about 16 seconds
-    float undulation2 = sin(now / 1000.0); // faster change in brightness, over about 3 seconds
+    next_crackle -= random(0,10);  // The refresh rate can vary by 10 msec
+    
+    undulation = sin(now / 5000.0);  // Slow change in brightness over about 16 seconds
+    undulation2 = sin(now / 1000.0); // faster change in brightness, over about 3 seconds
     
     // Brightness is a coeficient between 0 and 1, which we multiply 
     // by the RGB values for the current color,
     // to apply undulation and flicker.
     
-    float brightness = (baseBrightness + slowUndulationAmplitude * undulation +
+    brightness = (baseBrightness + pinkValue + slowUndulationAmplitude * undulation +
                         fastUndulationAmplitude * undulation2 + 
-                        flickerAmplitude / (pow(random(1,256), flickerExponent))) / 256;
+                        flickerAmplitude / (pow(random(1,256), flickerExponent))) / 255;
+    brightness = min(brightness,1);
     
     analogWrite(led_r, ceil(colors[current_color]->red * brightness));
     analogWrite(led_g, ceil(colors[current_color]->green * brightness));
