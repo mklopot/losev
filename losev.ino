@@ -19,7 +19,7 @@ const int led_b =  4;    // Blue on pin 4, which is also used for programming th
     // noticeable, but not annoying.
     // Flicker here is pink noise, 1/(f^a). The 'a' exponent is set 
     // to 0.38, by trial and error, it controls how 'flickery' the flicker is. 
-    // Try experineting with these values to your liking!
+    // Try experimenting with these values to your liking!
 const int baseBrightness = 130;
 const int slowUndulationAmplitude = 40;
 const int fastUndulationAmplitude = 10;
@@ -107,11 +107,14 @@ void loop() {
     float undulation = sin(now / 5000.0);  // Slow change in brightness over about 16 seconds
     float undulation2 = sin(now / 1000.0); // faster change in brightness, over about 3 seconds
     
-    // Brightness is a coeficient between 0 and 1, by which we multiply the RGB values for the current color,
+    // Brightness is a coeficient between 0 and 1, which we multiply 
+    // by the RGB values for the current color,
     // to apply undulation and flicker.
-    // float brightness = (BASE_BRIGHTNESS + SLOW_UNDULATION_AMPLITUDE * undulation + FAST_UNDULATION_AMPLITUDE * undulation2 + FLICKER_AMPLITUDE / (pow(random(1,256), FLICKER_EXPONENT))) / 256;
     
-    float brightness = (baseBrightness + slowUndulationAmplitude * undulation + fastUndulationAmplitude * undulation2 + flickerAmplitude / (pow(random(1,256), flickerExponent))) / 256;
+    float brightness = (baseBrightness + slowUndulationAmplitude * undulation +
+                        fastUndulationAmplitude * undulation2 + 
+                        flickerAmplitude / (pow(random(1,256), flickerExponent))) / 256;
+    
     analogWrite(led_r, ceil(colors[current_color]->red * brightness));
     analogWrite(led_g, ceil(colors[current_color]->green * brightness));
     analogWrite(led_b, ceil(colors[current_color]->blue * brightness));
