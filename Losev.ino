@@ -46,11 +46,12 @@ long nextPink = 0;
 int pinkRefresh = 82;
 int pinkAmplitude = 60;
 int pinkCounter = 0;
-int oldRando;
-int newRando;
+int oldRNG;
+int newRNG;
 int pinkIndex;
+int pinkValue;
 // This is called the Voss-McCartney Pink Noise Algorithm
-int pinkRandos[] = {0, 0, 0, 0, 0};
+int pinkRNGs[] = {0, 0, 0, 0, 0};
 int pinkSequence[] = {0, 1, 0, 2,
                       0, 1, 0, 3,
                       0, 1, 0, 2,
@@ -58,7 +59,7 @@ int pinkSequence[] = {0, 1, 0, 2,
                       0, 1, 0, 2,
                       0, 1, 0, 3,
                       0, 1, 0, 2,
-                      0, 1, 0}
+                      0, 1, 0};
 
 
 
@@ -128,11 +129,11 @@ void loop() {
     nextPink += pinkRefresh;
     pinkCounter++;
     if (pinkCounter > 30) pinkCounter = 0;
-    pinkIndex = pinkSequence[pinkCounter]
-    oldRando = pinkRandos[pinkIndex];
-    newRando = random(0, pinkAmplitude);
-    pinkRandos[pinkIndex] = newRando;
-    pinkValue += (newRando - oldRando);
+    pinkIndex = pinkSequence[pinkCounter];
+    oldRNG = pinkRNGs[pinkIndex];
+    newRNG = random(0, pinkAmplitude);
+    pinkRNGs[pinkIndex] = newRNG;
+    pinkValue += (newRNG - oldRNG);
   }
   
   if (now > next_crackle) {
