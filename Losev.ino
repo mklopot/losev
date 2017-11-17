@@ -21,9 +21,9 @@ const int led_b =  4;    // Blue on pin 4, which is also used for programming th
     // to 0.38, by trial and error, it controls how 'flickery' the flicker is. 
     // Try experimenting with these values to your liking!
 const int baseBrightness = 130;
-const int slowUndulationAmplitude = 40;
-const int fastUndulationAmplitude = 10;
-const int flickerAmplitude = 75;
+const int slowUndulationAmplitude = 0;
+const int fastUndulationAmplitude = 0;
+const int flickerAmplitude = 0;
 const float flickerExponent = 0.38;
 
 
@@ -31,7 +31,7 @@ const float flickerExponent = 0.38;
 int buttonState = HIGH;         // variable for reading the pushbutton status
 int lastButtonState = HIGH;
 long lastButtonPress = 0;       // keep track of last press for de-bouncing 
-int buttonDelay = 250;          // milliseconds
+int buttonDelay = 120;          // milliseconds
 
 int current_color;
 
@@ -44,7 +44,7 @@ long next_crackle = 0;
 
 long nextPink = 0;
 int pinkRefresh = 82;
-int pinkAmplitude = 60;
+int pinkAmplitude = 25;
 int pinkCounter = 0;
 int oldRNG;
 int newRNG;
@@ -83,7 +83,7 @@ const struct Color blue = {0, 0, 255};
 const struct Color violet = {90, 0, 255};
 const struct Color magenta = {255, 0, 255};
 const struct Color rose = {255, 0, 90};
-const struct Color white = {255, 255, 230};  // should be {255,255,255}, do the math on the red resistor...
+const struct Color white = {255, 255, 200};  // should be {255,255,255}, do the math on the red resistor...
 const struct Color off = {0, 0, 0};
 
 struct Color *colors[] = {&orange, 
@@ -155,9 +155,5 @@ void loop() {
     analogWrite(led_r, ceil(colors[current_color]->red * brightness));
     analogWrite(led_g, ceil(colors[current_color]->green * brightness));
     analogWrite(led_b, ceil(colors[current_color]->blue * brightness));
-
-    //analogWrite(led_g, random(0,255));
-    
-    
   }
 }
