@@ -21,45 +21,42 @@ const int led_b =  4;    // Blue on pin 4, which is also used for programming th
     // to 0.38, by trial and error, it controls how 'flickery' the flicker is. 
     // Try experimenting with these values to your liking!
 const int baseBrightness = 130;
-const int slowUndulationAmplitude = 0;
-const int fastUndulationAmplitude = 0;
-const int flickerAmplitude = 0;
-const float flickerExponent = 0.38;
-
+const int UndulationAmplitude = 30;
 
 // variables
 int buttonState = HIGH;         // variable for reading the pushbutton status
 int lastButtonState = HIGH;
 long lastButtonPress = 0;       // keep track of last press for de-bouncing 
-int buttonDelay = 120;          // milliseconds
+int buttonDelay = 130;          // milliseconds
 
 int current_color;
 
 long now = 0;
 float brightness;
 float undulation;
-float undulation2;
-int crackle_refresh = 82;       // This gives an update rate of about 13 Hz, but we can fuzz this number later
+int crackle_refresh = 34;       // This gives an update rate of about 30 Hz, but we can fuzz this number later
 long next_crackle = 0;
 
 long nextPink = 0;
-int pinkRefresh = 82;
+int pinkRefresh = 95;
 int pinkAmplitude = 25;
 int pinkCounter = 0;
 int oldRNG;
 int newRNG;
+int newZero;
+int oldZero;
 int pinkIndex;
 int pinkValue;
 // This is called the Voss-McCartney Pink Noise Algorithm
-int pinkRNGs[] = {0, 0, 0, 0, 0};
-int pinkSequence[] = {0, 1, 0, 2,
-                      0, 1, 0, 3,
-                      0, 1, 0, 2,
-                      0, 1, 0, 4,
-                      0, 1, 0, 2,
-                      0, 1, 0, 3,
-                      0, 1, 0, 2,
-                      0, 1, 0};
+int pinkRNGs[] = {0, 0, 0, 0, 0, 0};
+int pinkSequence[] = {1, 2, 1, 3,
+                      1, 2, 1, 4,
+                      1, 2, 1, 3,
+                      1, 2, 1, 5,
+                      1, 2, 1, 3,
+                      1, 2, 1, 4,
+                      1, 2, 1, 3,
+                      1, 2, 1, 0};
 
 
 
@@ -128,28 +125,32 @@ void loop() {
   if (now > nextPink) {
     nextPink += pinkRefresh;
     pinkCounter++;
-    if (pinkCounter > 30) pinkCounter = 0;
+    if (pinkCounter > 31) pinkCounter = 0;
     pinkIndex = pinkSequence[pinkCounter];
-    oldRNG = pinkRNGs[pinkIndex];
-    newRNG = random(0, pinkAmplitude);
-    pinkRNGs[pinkIndex] = newRNG;
-    pinkValue += (newRNG - oldRNG);
+    if (pinkIndex > 0) {
+      oldRNG = pinkRNGs[pinkIndex];
+      newRNG = random(0, pinkAmplitude);
+      pinkRNGs[pinkIndex] = newRNG;
+      pinkValue += (newRNG - oldRNG);
+    }
+    oldZero = pinkRNGs[0];
+    newZero = random(0, pinkAmplitude);
+    pinkRNGs[0] = newZero;
+    pinkValue += (newZero - oldZero);
   }
   
   if (now > next_crackle) {
     next_crackle += crackle_refresh;
-    next_crackle -= random(0,10);  // The refresh rate can vary by 10 msec
+    next_crackle -= random(0,20);  // The refresh rate can vary by 20 msec
     
-    undulation = sin(now / 5000.0);  // Slow change in brightness over about 16 seconds
-    undulation2 = sin(now / 1000.0); // faster change in brightness, over about 3 seconds
+    
+    undulation = sin(now / 1256.0); // characteristic flicker at about 5 Hz
     
     // Brightness is a coeficient between 0 and 1, which we multiply 
     // by the RGB values for the current color,
     // to apply undulation and flicker.
     
-    brightness = (baseBrightness + pinkValue + slowUndulationAmplitude * undulation +
-                        fastUndulationAmplitude * undulation2 + 
-                        flickerAmplitude / (pow(random(1,256), flickerExponent))) / 255;
+    brightness = (baseBrightness + pinkValue + UndulationAmplitude * undulation) / 255;
     brightness = min(brightness,1);
     
     analogWrite(led_r, ceil(colors[current_color]->red * brightness));
